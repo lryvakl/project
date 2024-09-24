@@ -1,11 +1,11 @@
-//
-// Created by Valeria Ryvak on 12.09.2024.
-//
-#include <iostream>
 
-using namespace std;
- int main(){
-cout << "one";
-     return 0;
+#include "graph.h"
+#include "tree.h"
+#include "transport.h"
 
- }
+int main() {
+    demoGraph();
+    demoTransportGraph();
+    demoTree();
+    return 0;
+}
