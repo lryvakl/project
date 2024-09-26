@@ -14,6 +14,22 @@
 #include <algorithm>
 #include <queue>
 #include "transport.h"
+#include <string>
+
+
+namespace std {
+    template <>
+    struct hash<std::vector<int>> {
+        std::size_t operator()(const std::vector<int>& vec) const {
+            std::size_t seed = vec.size();
+            for (const auto& i : vec) {
+                // Об'єднуємо значення кожного елементу
+                seed ^= std::hash<int>()(i) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            }
+            return seed;
+        }
+    };
+}
 
 template <typename T>
 class Node {
@@ -277,10 +293,10 @@ public:
 */
 
 void demoGraph() {
-    // Граф для цілочисельних даних
+
+    // Граф для int
     Graph<int> graphInt;
 
-    // Додаємо цілі числа
     graphInt.addNode(1);
     graphInt.addNode(2);
     graphInt.addNode(3);
@@ -293,19 +309,24 @@ void demoGraph() {
     graphInt.addEdge(nodesInt[1], nodesInt[3]);
     graphInt.addEdge(nodesInt[2], nodesInt[3]);
 
-    std::cout << "Graph of integers before removing node 2:" << std::endl;
+    std::cout << "Graph of integers:" << std::endl;
     graphInt.display();
 
-    // Видалення вузла (node 2)
-    graphInt.removeNode(nodesInt[1]); // Видаляємо вузол 2
+    std::vector<Edge<int>*> spanningTree = graphInt.findSpanningTree();
+    graphInt.displaySpanningTree(spanningTree);
+
+    std::vector<Edge<int>*> mst = graphInt.kruskalMST();
+    graphInt.displayMST(mst);
+
+    graphInt.removeNode(nodesInt[1]);
 
     std::cout << "Graph of integers after removing node 2:" << std::endl;
     graphInt.display();
 
-    // Граф для дійсних чисел (double)
+    // Граф для double
+
     Graph<double> graphDouble;
 
-    // Додаємо дійсні числа
     graphDouble.addNode(1.1);
     graphDouble.addNode(2.2);
     graphDouble.addNode(3.3);
@@ -318,16 +339,22 @@ void demoGraph() {
     graphDouble.addEdge(nodesDouble[1], nodesDouble[3]);
     graphDouble.addEdge(nodesDouble[2], nodesDouble[3]);
 
-    std::cout << "\nGraph of doubles before removing node 2.2:" << std::endl;
+    std::cout << "\nGraph of doubles" << std::endl;
     graphDouble.display();
 
-    // Видалення вузла (node 2.2)
-    graphDouble.removeNode(nodesDouble[1]); // Видаляємо вузол 2.2
+    std::vector<Edge<double>*> spanningTreeDouble = graphDouble.findSpanningTree();
+    graphDouble.displaySpanningTree(spanningTreeDouble);
+
+    std::vector<Edge<double>*> mstDouble = graphDouble.kruskalMST();
+    graphDouble.displayMST(mstDouble);
+
+    graphDouble.removeNode(nodesDouble[1]);
 
     std::cout << "Graph of doubles after removing node 2.2:" << std::endl;
     graphDouble.display();
 
     // Граф для рядків
+
     Graph<std::string> graphString;
 
     graphString.addNode("A");
@@ -342,19 +369,24 @@ void demoGraph() {
     graphString.addEdge(nodesString[1], nodesString[3]);
     graphString.addEdge(nodesString[2], nodesString[3]);
 
-    std::cout << "\nGraph of strings before removing node B:" << std::endl;
+    std::cout << "\nGraph of strings:" << std::endl;
     graphString.display();
 
-    // Видалення вузла (node B)
-    graphString.removeNode(nodesString[1]); // Видаляємо вузол B
+    std::vector<Edge<std::string>*> spanningTreeString = graphString.findSpanningTree();
+    graphString.displaySpanningTree(spanningTreeString);
+
+    std::vector<Edge<std::string>*> mstString = graphString.kruskalMST();
+    graphString.displayMST(mstString);
+
+    graphString.removeNode(nodesString[1]);
 
     std::cout << "Graph of strings after removing node B:" << std::endl;
     graphString.display();
 
     // Граф для векторів
+
     Graph<std::vector<int>> graphVector;
 
-    // Додаємо вектори
     graphVector.addNode(std::vector<int>{1, 2});
     graphVector.addNode(std::vector<int>{3, 4});
     graphVector.addNode(std::vector<int>{5, 6});
@@ -367,11 +399,16 @@ void demoGraph() {
     graphVector.addEdge(nodesVector[1], nodesVector[3]);
     graphVector.addEdge(nodesVector[2], nodesVector[3]);
 
-    std::cout << "\nGraph of vectors before removing vector {3, 4}:" << std::endl;
+    std::cout << "\nGraph of vectors:" << std::endl;
     graphVector.display();
 
-    // Видалення вузла (вектор {3, 4})
-    graphVector.removeNode(nodesVector[1]); // Видаляємо вектор {3, 4}
+    std::vector<Edge<std::vector<int>>*> spanningTreeVector = graphVector.findSpanningTree();
+    graphVector.displaySpanningTree(spanningTreeVector);
+
+    std::vector<Edge<std::vector<int>>*> mstVector = graphVector.kruskalMST();
+    graphVector.displayMST(mstVector);
+
+    graphVector.removeNode(nodesVector[1]);
 
     std::cout << "Graph of vectors after removing vector {3, 4}:" << std::endl;
     graphVector.display();
@@ -439,157 +476,6 @@ void demoGraph() {
     for (auto node : transportGraph.getNodes()) {
         delete node;
     }
-}
-
-
-
-void demoGraph0() {
-    Graph<int> graphInt;
-
-    // Додаємо цілі числа
-    graphInt.addNode(1);
-    graphInt.addNode(2);
-    graphInt.addNode(3);
-    graphInt.addNode(4);
-
-    auto nodesInt = graphInt.getNodes();
-    graphInt.addEdge(nodesInt[0], nodesInt[1]);
-    graphInt.addEdge(nodesInt[0], nodesInt[2]);
-    graphInt.addEdge(nodesInt[1], nodesInt[2]);
-    graphInt.addEdge(nodesInt[1], nodesInt[3]);
-    graphInt.addEdge(nodesInt[2], nodesInt[3]);
-
-    std::cout << "Graph of integers before finding Spanning Tree:" << std::endl;
-    graphInt.display();
-
-    std::vector<Edge<int>*> spanningTreeInt = graphInt.findSpanningTree();
-    graphInt.displaySpanningTree(spanningTreeInt);
-
-    std::vector<Edge<int>*> mstInt = graphInt.kruskalMST();
-    graphInt.displayMST(mstInt);
-
-    // Граф для рядків
-    Graph<std::string> graphString;
-
-    graphString.addNode("A");
-    graphString.addNode("B");
-    graphString.addNode("C");
-    graphString.addNode("D");
-
-    auto nodesString = graphString.getNodes();
-    graphString.addEdge(nodesString[0], nodesString[1]);
-    graphString.addEdge(nodesString[0], nodesString[2]);
-    graphString.addEdge(nodesString[1], nodesString[2]);
-    graphString.addEdge(nodesString[1], nodesString[3]);
-    graphString.addEdge(nodesString[2], nodesString[3]);
-
-    std::cout << "\nGraph of strings before finding Spanning Tree:" << std::endl;
-    graphString.display();
-
-    std::vector<Edge<std::string>*> spanningTreeString = graphString.findSpanningTree();
-    graphString.displaySpanningTree(spanningTreeString);
-
-    std::vector<Edge<std::string>*> mstString = graphString.kruskalMST();
-    graphString.displayMST(mstString);
-
-    // Очищення пам'яті
-    for (auto edge : graphInt.getEdges()) {
-        delete edge;
-    }
-    for (auto node : graphInt.getNodes()) {
-        delete node;
-    }
-    for (auto edge : graphString.getEdges()) {
-        delete edge;
-    }
-    for (auto node : graphString.getNodes()) {
-        delete node;
-    }
-}
-
-void demoTransportGraph() {
-    Graph<Transport*> transportGraph;
-
-
-    Transport* car = new Car("Kyiv", "Lviv");
-    Transport* bus = new Bus("Kyiv", "Odesa");
-    Transport* train = new Train("Lviv", "Kharkiv");
-    Transport* waterVehicle = new WaterTransport();
-    Transport* airVehicle = new AirTransport();
-
-
-    transportGraph.addNode(car);
-    transportGraph.addNode(bus);
-    transportGraph.addNode(train);
-    transportGraph.addNode(waterVehicle);
-    transportGraph.addNode(airVehicle);
-
-
-    transportGraph.addEdge(transportGraph.getNodes()[0], transportGraph.getNodes()[1], 10.0); // Car to Bus
-    transportGraph.addEdge(transportGraph.getNodes()[0], transportGraph.getNodes()[2], 15.0); // Car to Train
-    transportGraph.addEdge(transportGraph.getNodes()[1], transportGraph.getNodes()[3], 20.0); // Bus to WaterVehicle
-    transportGraph.addEdge(transportGraph.getNodes()[2], transportGraph.getNodes()[4], 25.0); // Train to AirVehicle
-
-
-    std::cout << "Transport Graph before finding Spanning Tree:" << std::endl;
-    transportGraph.display();
-
-
-    std::vector<Edge<Transport*>*> spanningTree = transportGraph.findSpanningTree();
-    transportGraph.displaySpanningTree(spanningTree);
-
-
-    delete car;
-    delete bus;
-    delete train;
-    delete waterVehicle;
-    delete airVehicle;
-}
-
-void demoTransportGraph0() {
-    Graph<Transport*> transportGraph;
-
-    // Створення транспортних засобів
-    Transport* car = new Car("Kyiv", "Lviv");
-    Transport* bus = new Bus("Kyiv", "Odesa");
-    Transport* train = new Train("Lviv", "Kharkiv");
-    Transport* waterVehicle = new WaterTransport();
-    Transport* airVehicle = new AirTransport();
-
-    // Додавання транспортних засобів у граф
-    transportGraph.addNode(car);
-    transportGraph.addNode(bus);
-    transportGraph.addNode(train);
-    transportGraph.addNode(waterVehicle);
-    transportGraph.addNode(airVehicle);
-
-    // Додавання ребер між транспортними засобами
-    transportGraph.addEdge(transportGraph.getNodes()[0], transportGraph.getNodes()[1], 10.0); // Car to Bus
-    transportGraph.addEdge(transportGraph.getNodes()[0], transportGraph.getNodes()[2], 15.0); // Car to Train
-    transportGraph.addEdge(transportGraph.getNodes()[1], transportGraph.getNodes()[3], 20.0); // Bus to WaterVehicle
-    transportGraph.addEdge(transportGraph.getNodes()[2], transportGraph.getNodes()[4], 25.0); // Train to AirVehicle
-
-    // Вивід графа до видалення
-    std::cout << "Transport Graph before finding Spanning Tree:" << std::endl;
-    transportGraph.display();
-
-    // Вивід кістякового дерева
-    std::vector<Edge<Transport*>*> spanningTree = transportGraph.findSpanningTree();
-    transportGraph.displaySpanningTree(spanningTree);
-
-    // Видалення транспортного засобу (наприклад, Car)
-    std::cout << "\nRemoving Car (Kyiv to Lviv)..." << std::endl;
-    transportGraph.removeNode(transportGraph.getNodes()[0]); // Видаляємо перший елемент (Car)
-
-    // Вивід графа після видалення
-    std::cout << "Transport Graph after removing Car:" << std::endl;
-    transportGraph.display();
-
-    // Очищення пам'яті
-    delete bus;
-    delete train;
-    delete waterVehicle;
-    delete airVehicle;
 }
 
 #endif //PROJECT_GRAPH_H
