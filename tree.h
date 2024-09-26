@@ -7,14 +7,14 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 #include <unordered_map>
 #include "transport.h"
 
-// Шаблонна функція для безпечного видалення даних у вузлах
 template <typename T>
 void deleteData(T data) {
     if constexpr (std::is_pointer<T>::value) {
-        delete data;  // Видалення даних, якщо тип є вказівником
+        delete data;
     }
 }
 
@@ -34,33 +34,33 @@ class Tree {
 private:
     TreeNode<T>* root;
 
-    // Рекурсивна функція для очищення пам'яті
+
     void clear(TreeNode<T>* node) {
         if (node) {
             for (auto child : node->children) {
                 clear(child);
             }
-            // Видаляємо дані вузла перед його видаленням
+
             deleteData(node->data);
             delete node;
         }
     }
 
-    // Рекурсивна функція для видалення вузла
+
     bool removeNode(TreeNode<T>* node, TreeNode<T>* parent) {
         if (!node) return false;
 
-        // Видаляємо дочірні елементи вузла
+
         for (auto child : node->children) {
             clear(child);
         }
 
-        // Видаляємо сам вузол
+
         if (parent) {
             auto& siblings = parent->children;
             siblings.erase(std::remove(siblings.begin(), siblings.end(), node), siblings.end());
         } else {
-            // Якщо це корінь, то встановлюємо його в nullptr
+
             root = nullptr;
         }
 
@@ -89,7 +89,7 @@ public:
 
     void traverse(TreeNode<T>* node) {
         if (node) {
-            // Виводимо значення в залежності від типу
+
             if constexpr (std::is_pointer<T>::value) {
                 std::cout << node->data->toString() << std::endl;
             } else {
@@ -105,7 +105,7 @@ public:
         traverse(root);
     }
 
-    // Функція для видалення вузла
+
     bool remove(TreeNode<T>* node) {
         if (!node) return false;
         if (node == root) {
@@ -117,7 +117,7 @@ public:
         return removeNode(node, parent);
     }
 
-    // Пошук батьківського вузла для заданого вузла
+
     TreeNode<T>* findParent(TreeNode<T>* current, TreeNode<T>* target) {
         if (!current || !target) return nullptr;
         for (auto child : current->children) {
@@ -128,7 +128,6 @@ public:
         return nullptr;
     }
 
-    // Деструктор
     ~Tree() {
         clear(root);
     }
@@ -182,6 +181,28 @@ void demoTree() {
     vectorTree.remove(vectorTree.getRoot()->children[0]);
     std::cout << "\nAfter removing first child vector node:" << std::endl;
     vectorTree.display();
+
+    Tree<std::vector<std::string>> vectorStringTree;
+
+    std::vector<std::string> rootDataString = {"one", "two", "three"};
+    vectorStringTree.addRoot(rootDataString);
+
+    std::vector<std::string> childData3 = {"four", "five"};
+    std::vector<std::string> childData4 = {"six", "seven"};
+
+    vectorStringTree.addChild(vectorStringTree.getRoot(), childData3);
+    vectorStringTree.addChild(vectorStringTree.getRoot(), childData4);
+
+    std::cout << "\nVector Tree:" << std::endl;
+    vectorStringTree.display();
+
+
+    vectorStringTree.remove(vectorStringTree.getRoot()->children[0]);
+    std::cout << "\nAfter removing first child vector node:" << std::endl;
+    vectorStringTree.display();
+
+
+
 }
 
 #endif //PROJECT_TREE_H

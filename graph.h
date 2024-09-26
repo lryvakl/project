@@ -30,6 +30,27 @@ namespace std {
         }
     };
 }
+namespace std {
+    template<>
+    struct hash<std::vector<std::string>> {
+        std::size_t operator()(const std::vector<std::string>& vec) const {
+            std::size_t seed = 0;
+            std::hash<std::string> hasher;
+            for (const auto& str : vec) {
+                seed ^= hasher(str) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            }
+            return seed;
+        }
+    };
+}
+std::ostream& operator<<(std::ostream& os, const std::vector<std::string>& vec) {
+    os << "{ ";
+    for (const auto& str : vec) {
+        os << "\"" << str << "\" ";
+    }
+    os << "}";
+    return os;
+}
 
 template <typename T>
 class Node {
@@ -405,7 +426,7 @@ void demoGraph() {
     std::cout << "Graph of strings after removing node B:" << std::endl;
     graphString.display();
 
-    // Граф для векторів
+    // Граф для векторів<int>
 
     Graph<std::vector<int>> graphVector;
 
@@ -435,8 +456,38 @@ void demoGraph() {
     std::cout << "Graph of vectors after removing vector {3, 4}:" << std::endl;
     graphVector.display();
 
+// Граф для vector<string>
 
-    // Очищення пам'яті
+    Graph<std::vector<std::string>> graphStringVector;
+
+    graphStringVector.addNode(std::vector<std::string>{"Hello", "World"});
+    graphStringVector.addNode(std::vector<std::string>{"C++", "Programming"});
+    graphStringVector.addNode(std::vector<std::string>{"Graph", "Data"});
+    graphStringVector.addNode(std::vector<std::string>{"Algorithm", "Tree"});
+
+    auto nodesStringVector = graphStringVector.getNodes();
+
+    graphStringVector.addEdge(nodesStringVector[0], nodesStringVector[1]);
+    graphStringVector.addEdge(nodesStringVector[0], nodesStringVector[2]);
+    graphStringVector.addEdge(nodesStringVector[1], nodesStringVector[2]);
+    graphStringVector.addEdge(nodesStringVector[1], nodesStringVector[3]);
+    graphStringVector.addEdge(nodesStringVector[2], nodesStringVector[3]);
+
+    std::cout << "\nGraph of string vectors:" << std::endl;
+    graphStringVector.display();
+
+    std::vector<Edge<std::vector<std::string>>*> spanningTreeStringVector = graphStringVector.findSpanningTree();
+    graphStringVector.displaySpanningTree(spanningTreeStringVector);
+
+    std::vector<Edge<std::vector<std::string>>*> mstStringVector = graphStringVector.kruskalMST();
+    graphStringVector.displayMST(mstStringVector);
+
+    graphStringVector.removeNode(nodesStringVector[1]);
+
+    std::cout << "Graph of string vectors after removing vector {C++, Programming}:" << std::endl;
+    graphStringVector.display();
+
+
     for (auto edge : graphInt.getEdges()) {
         delete edge;
     }
