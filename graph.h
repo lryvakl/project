@@ -257,40 +257,62 @@ public:
     std::vector<Edge<T>*> getEdges() const {
         return edges;
     }
+
+    void displayTransport() const {
+        for (const auto& node : nodes) {
+            std::cout << node->getData()->toString()<< std::endl;
+        }
+    }
+
 };
 
-/*void demoGraph() {
-    Graph<int> graph;
 
-    graph.addNode(1);
-    graph.addNode(2);
-    graph.addNode(3);
-    graph.addNode(4);
 
-    auto nodes = graph.getNodes();
-    graph.addEdge(nodes[0], nodes[1]);
-    graph.addEdge(nodes[0], nodes[2]);
-    graph.addEdge(nodes[1], nodes[2]);
-    graph.addEdge(nodes[1], nodes[3]);
-    graph.addEdge(nodes[2], nodes[3]);
+void demoTransportGraph() {
+    Graph<Transport*> transportGraph;
 
-    std::cout << "Graph before finding Spanning Tree:" << std::endl;
-    graph.display();
+    Transport* landTransport = new LandTransport(0, 0, 0);
+    Transport* car = new Car(1500, 6, 300);
+    Transport* bus = new Bus(8000, 6, 400);
+    Transport* train = new Train(20000, 8, 600);
+    Transport* airTransport = new AirTransport(0, 0, 0);
+    Transport* airplane = new Airplane(50000, 2, 1500);
+    Transport* waterTransport = new WaterTransport(0, 0, 0);
+    Transport* ship = new Ship(25000, 12, 1000);
 
-    std::vector<Edge<int>*> spanningTree = graph.findSpanningTree();
-    graph.displaySpanningTree(spanningTree);
 
-    std::vector<Edge<int>*> mst = graph.kruskalMST();
-    graph.displayMST(mst);
-    // Очищення пам'яті
-    for (auto edge : graph.getEdges()) {
+    transportGraph.addNode(landTransport);
+    transportGraph.addNode(car);
+    transportGraph.addNode(bus);
+    transportGraph.addNode(train);
+    transportGraph.addNode(airTransport);
+    transportGraph.addNode(airplane);
+    transportGraph.addNode(waterTransport);
+    transportGraph.addNode(ship);
+
+
+    transportGraph.addEdge(transportGraph.getNodes()[0], transportGraph.getNodes()[1]);
+    transportGraph.addEdge(transportGraph.getNodes()[0], transportGraph.getNodes()[2]);
+    transportGraph.addEdge(transportGraph.getNodes()[0], transportGraph.getNodes()[3]);
+    transportGraph.addEdge(transportGraph.getNodes()[4], transportGraph.getNodes()[5]);
+    transportGraph.addEdge(transportGraph.getNodes()[6], transportGraph.getNodes()[7]);
+
+    std::cout << "Transport graph" << std::endl;
+    transportGraph.displayTransport();
+
+
+    delete car;
+    delete bus;
+    delete train;
+    delete airplane;
+    delete ship;
+
+
+    for (auto edge : transportGraph.getEdges()) {
         delete edge;
     }
-    for (auto node : graph.getNodes()) {
-        delete node;
-    }
 }
-*/
+
 
 void demoGraph() {
 
@@ -413,37 +435,6 @@ void demoGraph() {
     std::cout << "Graph of vectors after removing vector {3, 4}:" << std::endl;
     graphVector.display();
 
-    // Граф для транспортних засобів
-    Graph<Transport*> transportGraph;
-
-    // Створення транспортних засобів
-    Transport* car = new Car("Kyiv", "Lviv");
-    Transport* bus = new Bus("Kyiv", "Odesa");
-    Transport* train = new Train("Lviv", "Kharkiv");
-    Transport* waterVehicle = new WaterTransport();
-    Transport* airVehicle = new AirTransport();
-
-    // Додавання транспортних засобів у граф
-    transportGraph.addNode(car);
-    transportGraph.addNode(bus);
-    transportGraph.addNode(train);
-    transportGraph.addNode(waterVehicle);
-    transportGraph.addNode(airVehicle);
-
-    // Додавання ребер між транспортними засобами
-    transportGraph.addEdge(transportGraph.getNodes()[0], transportGraph.getNodes()[1], 10.0); // Car to Bus
-    transportGraph.addEdge(transportGraph.getNodes()[0], transportGraph.getNodes()[2], 15.0); // Car to Train
-    transportGraph.addEdge(transportGraph.getNodes()[1], transportGraph.getNodes()[3], 20.0); // Bus to WaterVehicle
-    transportGraph.addEdge(transportGraph.getNodes()[2], transportGraph.getNodes()[4], 25.0); // Train to AirVehicle
-
-    std::cout << "\nTransport Graph before removing Bus:" << std::endl;
-    transportGraph.display();
-
-    // Видалення транспортного засобу (Bus)
-    transportGraph.removeNode(transportGraph.getNodes()[1]); // Видаляємо Bus
-
-    std::cout << "Transport Graph after removing Bus:" << std::endl;
-    transportGraph.display();
 
     // Очищення пам'яті
     for (auto edge : graphInt.getEdges()) {
@@ -470,12 +461,8 @@ void demoGraph() {
     for (auto node : graphVector.getNodes()) {
         delete node;
     }
-    for (auto edge : transportGraph.getEdges()) {
-        delete edge;
-    }
-    for (auto node : transportGraph.getNodes()) {
-        delete node;
-    }
 }
+
+
 
 #endif //PROJECT_GRAPH_H

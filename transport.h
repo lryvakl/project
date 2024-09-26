@@ -9,119 +9,131 @@
 #include <string>
 #include <vector>
 
-// Базовий клас для всіх транспортних засобів
 class Transport {
+protected:
+    double price;
+    double duration;
+    double distance;
+
 public:
-    virtual void move() = 0; // Метод для руху
-    virtual std::string toString() const = 0; // Метод для отримання рядкового представлення
-    virtual ~Transport() = default; // Віртуальний деструктор
+
+    Transport(double price, double duration, double distance)
+            : price(price), duration(duration), distance(distance) {}
+    virtual std::string toString() const = 0;
+    virtual ~Transport() {}
 };
 
 
 class LandTransport : public Transport {
-protected:
-    std::string origin;
-    std::string destination;
-
 public:
-    LandTransport(std::string origin, std::string destination)
-            : origin(origin), destination(destination) {}
-
-    std::string getOrigin() const { return origin; }
-    std::string getDestination() const { return destination; }
-};
-
-
-class Car : public LandTransport {
-public:
-    Car(std::string origin, std::string destination)
-            : LandTransport(origin, destination) {}
-
-    void move() override {
-        std::cout << "Car is driving from " << origin << " to " << destination << std::endl;
-    }
+    LandTransport(double price, double duration, double distance)
+            : Transport(price, duration, distance) {}
 
     std::string toString() const override {
-        return "Car from " + origin + " to " + destination;
+        return "Land Transport: "+ std::to_string(3) ;
     }
-};
-
-
-class Bus : public LandTransport {
-public:
-    Bus(std::string origin, std::string destination)
-            : LandTransport(origin, destination) {}
-
-    void move() override {
-        std::cout << "Bus is driving from " << origin << " to " << destination << std::endl;
-    }
-
-    std::string toString() const override {
-        return "Bus from " + origin + " to " + destination;
-    }
-};
-
-
-class Train : public LandTransport {
-public:
-    Train(std::string origin, std::string destination)
-            : LandTransport(origin, destination) {}
-
-    void move() override {
-        std::cout << "Train is moving from " << origin << " to " << destination << std::endl;
-    }
-
-    std::string toString() const override {
-        return "Train from " + origin + " to " + destination;
-    }
+    virtual ~LandTransport() {}
 };
 
 
 class WaterTransport : public Transport {
 public:
-    void move() override {
-        std::cout << "Water vehicle is moving through water." << std::endl;
+    WaterTransport(double price, double duration, double distance)
+            : Transport(price, duration, distance) {}
+    std::string toString() const override {
+        return "WaterTransport: "+ std::to_string(1) ;
+    }
+    ~WaterTransport(){};
+};
+
+
+
+class AirTransport : public Transport {
+public:
+    AirTransport(double price, double duration, double distance)
+            : Transport(price, duration, distance) {}
+    std::string toString() const override {
+        return "AirTransport: "+ std::to_string(1) ;
+    }
+    ~AirTransport(){};
+};
+
+
+class Car : public LandTransport {
+
+public:
+    Car(double price, double duration, double distance)
+            : LandTransport(price, duration, distance) {}
+
+
+    std::string toString() const override {
+        return "Car: Price = " + std::to_string(price) +
+               ", Duration = " + std::to_string(duration) +
+               ", Distance = " + std::to_string(distance);
+    }
+    ~Car() {}
+};
+
+
+class Bus : public LandTransport {
+
+public:
+    Bus(double price, double duration, double distance)
+            : LandTransport(price, duration, distance) {}
+
+
+    std::string toString() const override {
+        return "Bus: Price = " + std::to_string(price) +
+               ", Duration = " + std::to_string(duration) +
+               ", Distance = " + std::to_string(distance);
+    }
+    ~Bus() {}
+
+
+};
+
+
+class Train : public LandTransport {
+
+public:
+    Train(double price, double duration, double distance)
+            :   LandTransport(price, duration, distance) {
     }
 
     std::string toString() const override {
-        return "Water Vehicle";
+        return "Train: Price = " + std::to_string(price) +
+               ", Duration = " + std::to_string(duration) +
+               ", Distance = " + std::to_string(distance);
     }
+    ~Train() {}
+};
+
+
+class Airplane : public AirTransport {
+public:
+    Airplane(double price, double duration, double distance)
+            : AirTransport(price, duration, distance) {}
+
+    std::string toString() const override {
+        return "Airplane: Price = " + std::to_string(price) +
+               ", Duration = " + std::to_string(duration) +
+               " hours, Distance = " + std::to_string(distance) + " km";
+    }
+    ~Airplane(){}
 };
 
 
 class Ship : public WaterTransport {
 public:
-    void move() override {
-        std::cout << "Ship is sailing." << std::endl;
-    }
+    Ship(double price, double duration, double distance)
+            : WaterTransport(price, duration, distance) {}
 
     std::string toString() const override {
-        return "Ship";
+        return "Ship: Price = " + std::to_string(price) +
+               ", Duration = " + std::to_string(duration) +
+               " hours, Distance = " + std::to_string(distance) + " km";
     }
-};
-
-
-class AirTransport : public Transport {
-public:
-    void move() override {
-        std::cout << "Air vehicle is flying." << std::endl;
-    }
-
-    std::string toString() const override {
-        return "Air Vehicle";
-    }
-};
-
-
-class Plane : public AirTransport {
-public:
-    void move() override {
-        std::cout << "Plane is flying." << std::endl;
-    }
-
-    std::string toString() const override {
-        return "Plane";
-    }
+    ~Ship(){}
 };
 
 #endif //PROJECT_TRANSPORT_H
