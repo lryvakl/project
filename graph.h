@@ -179,35 +179,6 @@ public:
         }
     }
 
-    std::vector<Edge<T>*> kruskalMST() { //minimal spanning tree
-        std::vector<Edge<T>*> mst;
-        UnionFind<T> uf;
-
-        // Створюємо множини для кожної вершини
-        for (auto node : nodes) {
-            uf.makeSet(node->getData());
-        }
-
-        // Сортуємо ребра за вагою
-        std::sort(edges.begin(), edges.end(), [](Edge<T>* a, Edge<T>* b) {
-            return a->getWeight() < b->getWeight();
-        });
-
-        // Проходимо через всі ребра та будуємо MST
-        for (auto edge : edges) {
-            T fromRoot = uf.find(edge->from->getData());
-            T toRoot = uf.find(edge->to->getData());
-
-            // Якщо корені не однакові, додаємо ребро до MST
-            if (fromRoot != toRoot) {
-                mst.push_back(edge);
-                uf.unionSets(fromRoot, toRoot);
-            }
-        }
-
-        return mst;
-    }
-
 
     std::vector<Edge<T>*> findSpanningTree() {
         std::vector<Edge<T>*> spanningTree;
@@ -240,6 +211,35 @@ public:
         return spanningTree;
     }
 
+    std::vector<Edge<T>*> kruskalMST() { //minimal spanning tree
+        std::vector<Edge<T>*> mst;
+        UnionFind<T> uf;
+
+        // Створюємо множини для кожної вершини
+        for (auto node : nodes) {
+            uf.makeSet(node->getData());
+        }
+
+        // Сортуємо ребра за вагою
+        std::sort(edges.begin(), edges.end(), [](Edge<T>* a, Edge<T>* b) {
+            return a->getWeight() < b->getWeight();
+        });
+
+        // Проходимо через всі ребра та будуємо MST
+        for (auto edge : edges) {
+            T fromRoot = uf.find(edge->from->getData());
+            T toRoot = uf.find(edge->to->getData());
+
+            // Якщо корені не однакові, додаємо ребро до MST
+            if (fromRoot != toRoot) {
+                mst.push_back(edge);
+                uf.unionSets(fromRoot, toRoot);
+            }
+        }
+
+        return mst;
+    }
+
 
     void display() const {
         for (const auto& edge : edges) {
@@ -262,7 +262,12 @@ public:
             std::cout << edge->from->getData() << " -- " << edge->to->getData() << std::endl;
         }
     }
-
+    void displaySTtrans(const std::vector<Edge<T>*>& spanningTree) const {
+        std::cout << " Spanning Tree:" << std::endl;
+        for (auto edge : spanningTree) {
+            std::cout << edge->from->getData()->toString() << " --(" << edge->getWeight() << ")--> " << edge->to->getData()->toString() << std::endl;
+        }
+    }
 
     void displayMST(const std::vector<Edge<T>*>& mst) const {
         std::cout << "Minimum Spanning Tree:" << std::endl;
@@ -284,22 +289,41 @@ public:
             std::cout << node->getData()->toString()<< std::endl;
         }
     }
+    void displayMSTtrans(const std::vector<Edge<T>*>& mst) const {
+        std::cout << "Minimum Spanning Tree:" << std::endl;
+        for (auto edge : mst) {
+            std::cout << edge->from->getData()->toString() << " --(" << edge->getWeight() << ")--> " << edge->to->getData()->toString() << std::endl;
+        }
+    }
+
 
 };
-
 
 
 void demoTransportGraph() {
     Graph<Transport*> transportGraph;
 
-    Transport* landTransport = new LandTransport(0, 0, 0);
-    Transport* car = new Car(1500, 6, 300);
-    Transport* bus = new Bus(8000, 6, 400);
-    Transport* train = new Train(20000, 8, 600);
-    Transport* airTransport = new AirTransport(0, 0, 0);
-    Transport* airplane = new Airplane(50000, 2, 1500);
-    Transport* waterTransport = new WaterTransport(0, 0, 0);
-    Transport* ship = new Ship(25000, 12, 1000);
+
+    Environment* envLand = new Environment("Київ", "Львів");
+    envLand->addRoad("E40");
+    envLand->addObstacle("Traffic jam");
+
+    Environment* envAir = new Environment("Київ", "Львів");
+    envAir->addObstacle("Weather issues");
+
+    Environment* envWater = new Environment("Київ", "Львів");
+    envWater->addRoad("Dnieper River");
+    envAir->addObstacle("Storm");
+
+
+    Transport* landTransport = new LandTransport(0, 0, 0, envLand);
+    Transport* car = new Car(1500, 6, 300, envLand);
+    Transport* bus = new Bus(8000, 6, 400, envLand);
+    Transport* train = new Train(20000, 8, 600, envLand);
+    Transport* airTransport = new AirTransport(0, 0, 0, envAir);
+    Transport* airplane = new Airplane(50000, 2, 1500, envAir);
+    Transport* waterTransport = new WaterTransport(0, 0, 0, envWater);
+    Transport* ship = new Ship(25000, 12, 1000, envWater);
 
 
     transportGraph.addNode(landTransport);
@@ -318,16 +342,33 @@ void demoTransportGraph() {
     transportGraph.addEdge(transportGraph.getNodes()[4], transportGraph.getNodes()[5]);
     transportGraph.addEdge(transportGraph.getNodes()[6], transportGraph.getNodes()[7]);
 
-    std::cout << "Transport graph" << std::endl;
-    transportGraph.displayTransport();
 
+    for (const auto& node : transportGraph.getNodes()) {
+
+        Transport* transport = node->getData();
+        std::cout << transport->toString() << std::endl;
+        std::cout << transport->getEnvironmentInfo() << std::endl;
+    }
+
+    std::vector<Edge<Transport*>*> spanningTreeTransport = transportGraph.findSpanningTree();
+    transportGraph.displaySTtrans(spanningTreeTransport);
+
+    std::vector<Edge<Transport*>*> mstTransport = transportGraph.kruskalMST();
+    transportGraph.displayMSTtrans(mstTransport);
+
+
+    transportGraph.removeNode(transportGraph.getNodes()[5]); // Наприклад, літак
+    std::cout << "\nAfter removing the Airplane:" << std::endl;
+    transportGraph.displayTransport();
 
     delete car;
     delete bus;
     delete train;
     delete airplane;
     delete ship;
-
+    delete envLand;
+    delete envAir;
+    delete envWater;
 
     for (auto edge : transportGraph.getEdges()) {
         delete edge;

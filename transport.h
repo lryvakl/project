@@ -1,139 +1,163 @@
-//
-// Created by Valeria Ryvak on 24.09.2024.
-//
-
 #ifndef PROJECT_TRANSPORT_H
 #define PROJECT_TRANSPORT_H
 
 #include <iostream>
 #include <string>
 #include <vector>
+#include <sstream>
+
+class Environment {
+private:
+    std::string startPoint;
+    std::string endPoint;
+    std::vector<std::string> roads; // Наприклад, перелік доріг
+    std::vector<std::string> obstacles; // Наприклад, список перешкод
+
+public:
+    Environment(const std::string& start, const std::string& end)
+            : startPoint(start), endPoint(end) {}
+
+    void addRoad(const std::string& road) {
+        roads.push_back(road);
+    }
+
+    void addObstacle(const std::string& obstacle) {
+        obstacles.push_back(obstacle);
+    }
+
+    std::string getStartPoint() const { return startPoint; }
+    std::string getEndPoint() const { return endPoint; }
+
+    std::string toString() const {
+        std::ostringstream oss;
+        oss << "Environment: Start = " << startPoint
+            << ", End = " << endPoint
+            << ", Roads = [";
+        for (const auto& road : roads) oss << road << ", ";
+        oss << "], Obstacles = [";
+        for (const auto& obstacle : obstacles) oss << obstacle << ", ";
+        oss << "]";
+        return oss.str();
+    }
+};
 
 class Transport {
 protected:
     double price;
     double duration;
     double distance;
+    Environment* env; // Нове поле для середовища
 
 public:
+    Transport(double price, double duration, double distance, Environment* env)
+            : price(price), duration(duration), distance(distance), env(env) {}
 
-    Transport(double price, double duration, double distance)
-            : price(price), duration(duration), distance(distance) {}
     virtual std::string toString() const = 0;
+
+    virtual double getDistance() const {
+        return distance;
+    }
+
+    void setEnvironment(Environment* newEnv) {
+        env = newEnv;
+    }
+
+    std::string getEnvironmentInfo() const {
+        return env ? env->toString() : "No environment set.";
+    }
+
     virtual ~Transport() {}
 };
 
-
 class LandTransport : public Transport {
 public:
-    LandTransport(double price, double duration, double distance)
-            : Transport(price, duration, distance) {}
+    LandTransport(double price, double duration, double distance, Environment* env)
+            : Transport(price, duration, distance, env) {}
 
     std::string toString() const override {
-        return "Land Transport: "+ std::to_string(3) ;
+        return "Land Transport: " + std::to_string(3) ;
     }
-    virtual ~LandTransport() {}
 };
-
 
 class WaterTransport : public Transport {
 public:
-    WaterTransport(double price, double duration, double distance)
-            : Transport(price, duration, distance) {}
+    WaterTransport(double price, double duration, double distance, Environment* env)
+            : Transport(price, duration, distance, env) {}
+
     std::string toString() const override {
-        return "WaterTransport: "+ std::to_string(1) ;
+        return "Water Transport:" + std::to_string(1);
     }
-    ~WaterTransport(){};
 };
-
-
 
 class AirTransport : public Transport {
 public:
-    AirTransport(double price, double duration, double distance)
-            : Transport(price, duration, distance) {}
+    AirTransport(double price, double duration, double distance, Environment* env)
+            : Transport(price, duration, distance, env) {}
+
     std::string toString() const override {
-        return "AirTransport: "+ std::to_string(1) ;
+        return "Air Transport: " + std::to_string(1) ;
     }
-    ~AirTransport(){};
 };
 
-
 class Car : public LandTransport {
-
 public:
-    Car(double price, double duration, double distance)
-            : LandTransport(price, duration, distance) {}
-
+    Car(double price, double duration, double distance, Environment* env)
+            : LandTransport(price, duration, distance, env) {}
 
     std::string toString() const override {
         return "Car: Price = " + std::to_string(price) +
                ", Duration = " + std::to_string(duration) +
                ", Distance = " + std::to_string(distance);
     }
-    ~Car() {}
 };
 
-
 class Bus : public LandTransport {
-
 public:
-    Bus(double price, double duration, double distance)
-            : LandTransport(price, duration, distance) {}
-
+    Bus(double price, double duration, double distance, Environment* env)
+            : LandTransport(price, duration, distance, env) {}
 
     std::string toString() const override {
         return "Bus: Price = " + std::to_string(price) +
                ", Duration = " + std::to_string(duration) +
                ", Distance = " + std::to_string(distance);
     }
-    ~Bus() {}
-
-
 };
 
-
 class Train : public LandTransport {
-
 public:
-    Train(double price, double duration, double distance)
-            :   LandTransport(price, duration, distance) {
-    }
+    Train(double price, double duration, double distance, Environment* env)
+            : LandTransport(price, duration, distance, env) {}
 
     std::string toString() const override {
         return "Train: Price = " + std::to_string(price) +
                ", Duration = " + std::to_string(duration) +
                ", Distance = " + std::to_string(distance);
     }
-    ~Train() {}
 };
-
 
 class Airplane : public AirTransport {
 public:
-    Airplane(double price, double duration, double distance)
-            : AirTransport(price, duration, distance) {}
+    Airplane(double price, double duration, double distance, Environment* env)
+            : AirTransport(price, duration, distance, env) {}
 
     std::string toString() const override {
         return "Airplane: Price = " + std::to_string(price) +
                ", Duration = " + std::to_string(duration) +
                " hours, Distance = " + std::to_string(distance) + " km";
     }
-    ~Airplane(){}
 };
-
 
 class Ship : public WaterTransport {
 public:
-    Ship(double price, double duration, double distance)
-            : WaterTransport(price, duration, distance) {}
+    Ship(double price, double duration, double distance, Environment* env)
+            : WaterTransport(price, duration, distance, env) {}
 
     std::string toString() const override {
         return "Ship: Price = " + std::to_string(price) +
                ", Duration = " + std::to_string(duration) +
                " hours, Distance = " + std::to_string(distance) + " km";
     }
-    ~Ship(){}
 };
 
-#endif //PROJECT_TRANSPORT_H
+
+#endif // PROJECT_TRANSPORT_H

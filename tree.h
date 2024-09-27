@@ -205,4 +205,46 @@ void demoTree() {
 
 }
 
+void demoTransportTree() {
+
+    Tree<Transport*> transportTree;
+
+
+    Environment* envLand = new Environment("Київ", "Одеса");
+    envLand->addRoad("М05");
+    envLand->addObstacle("Construction of roads");
+
+    Environment* envAir = new Environment("Київ", "Львів");
+    envAir->addObstacle("Weather issues");
+
+    Environment* envWater = new Environment("Київ", "Черкаси");
+    envWater->addRoad("Dnieper River");
+
+    Transport* car = new Car(1500, 6, 500,envLand);
+    Transport* bus = new Bus(800, 9, 550,envLand);
+    Transport* train = new Train(800, 10, 700,envLand);
+    Transport* airplane = new Airplane(2500, 2, 650,envAir);
+    Transport* ship = new Ship(2000, 2, 150,envWater);
+
+
+    transportTree.addRoot(car);
+
+    transportTree.addChild(transportTree.getRoot(), bus);
+    transportTree.addChild(transportTree.getRoot(), train);
+
+    TreeNode<Transport*>* busNode = transportTree.getRoot()->children[0];
+    transportTree.addChild(busNode, airplane);
+    transportTree.addChild(busNode, ship);
+
+    std::cout << "Transport Tree:" << std::endl;
+    transportTree.display();
+
+    transportTree.remove(busNode->children[0]);
+    std::cout << "\nAfter removing the Airplane:" << std::endl;
+    transportTree.display();
+
+}
+
+
+
 #endif //PROJECT_TREE_H
