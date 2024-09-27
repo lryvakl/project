@@ -236,6 +236,44 @@ public:
     }
 
 
+    std::vector<Edge<T>*> primMST() {
+        std::vector<Edge<T>*> mst;
+        std::unordered_set<Node<T>*> visited;
+        auto compare = [](Edge<T>* a, Edge<T>* b) { return a->getWeight() > b->getWeight(); };
+        std::priority_queue<Edge<T>*, std::vector<Edge<T>*>, decltype(compare)> minHeap(compare);
+
+        if (nodes.empty()) return mst;
+
+        // Start with the first node
+        visited.insert(nodes[0]);
+        for (auto edge : edges) {
+            if (edge->from == nodes[0] || edge->to == nodes[0]) {
+                minHeap.push(edge);
+            }
+        }
+
+        while (!minHeap.empty()) {
+            Edge<T>* currentEdge = minHeap.top();
+            minHeap.pop();
+
+            Node<T>* nextNode = visited.count(currentEdge->from) ? currentEdge->to : currentEdge->from;
+
+            if (visited.count(nextNode) == 0) {
+                visited.insert(nextNode);
+                mst.push_back(currentEdge);
+
+                for (auto edge : edges) {
+                    if (edge->from == nextNode || edge->to == nextNode) {
+                        minHeap.push(edge);
+                    }
+                }
+            }
+        }
+
+        return mst;
+    }
+
+
     void display() const {
         for (const auto &edge: edges) {
             std::cout << edge->from->getData() << " --(" << edge->getWeight() << ")--> ";
@@ -267,7 +305,7 @@ public:
     }
 
     void displayMST(const std::vector<Edge<T> *> &mst) const {
-        std::cout << "Minimum Spanning Tree:" << std::endl;
+        std::cout << "Minimum Spanning Tree (Kruskal's algorithm): " << std::endl;
         for (auto edge: mst) {
             std::cout << edge->from->getData() << " --(" << edge->getWeight() << ")--> " << edge->to->getData()
                       << std::endl;
@@ -296,8 +334,26 @@ public:
         }
     }
 
+    void displayMSTPrimsTrans(const std::vector<Edge<T> *> &mst) const {
+        std::cout << "Minimum Spanning Tree (Prim's Algorithm):" << std::endl;
+        for (auto edge : mst) {
+            std::cout << edge->from->getData()->toString() << " --(" << edge->getWeight() << ")--> "
+                      << edge->to->getData()->toString() << std::endl;
+        }
+    }
+
+
+    void displayMSTPrims(const std::vector<Edge<T>*> &mst) const {
+        std::cout << "Minimum Spanning Tree (Prim's Algorithm):" << std::endl;
+        for (auto edge : mst) {
+            std::cout << edge->from->getData() << " --(" << edge->getWeight() << ")--> "
+                      << edge->to->getData() << std::endl;
+        }
+    }
 
 };
+
+
 
 void demoTransportGraph() {
     Graph<Transport*> transportGraph;
@@ -344,11 +400,11 @@ void demoTransportGraph() {
     transportGraph.addNode(ship);
 
 
-    transportGraph.addEdge(transportGraph.getNodes()[0], transportGraph.getNodes()[1]);
-    transportGraph.addEdge(transportGraph.getNodes()[0], transportGraph.getNodes()[2]);
-    transportGraph.addEdge(transportGraph.getNodes()[0], transportGraph.getNodes()[3]);
-    transportGraph.addEdge(transportGraph.getNodes()[4], transportGraph.getNodes()[5]);
-    transportGraph.addEdge(transportGraph.getNodes()[6], transportGraph.getNodes()[7]);
+    transportGraph.addEdge(transportGraph.getNodes()[0], transportGraph.getNodes()[1],1);
+    transportGraph.addEdge(transportGraph.getNodes()[0], transportGraph.getNodes()[2],1);
+    transportGraph.addEdge(transportGraph.getNodes()[0], transportGraph.getNodes()[3],1);
+    transportGraph.addEdge(transportGraph.getNodes()[4], transportGraph.getNodes()[5],2);
+    transportGraph.addEdge(transportGraph.getNodes()[6], transportGraph.getNodes()[7],3);
 
     for (const auto& node : transportGraph.getNodes()) {
 
@@ -363,6 +419,8 @@ void demoTransportGraph() {
     std::vector<Edge<Transport*>*> mstTransport = transportGraph.kruskalMST();
     transportGraph.displayMSTtrans(mstTransport);
 
+    std::vector<Edge<Transport*>*> mstTransportPrims = transportGraph.primMST();
+    transportGraph.displayMSTPrimsTrans(mstTransportPrims);
 
     transportGraph.removeNode(transportGraph.getNodes()[5]); // Наприклад, літак
     std::cout << "\nAfter removing the Airplane:" << std::endl;
@@ -395,11 +453,11 @@ void demoGraph() {
     graphInt.addNode(4);
 
     auto nodesInt = graphInt.getNodes();
-    graphInt.addEdge(nodesInt[0], nodesInt[1]);
-    graphInt.addEdge(nodesInt[0], nodesInt[2]);
-    graphInt.addEdge(nodesInt[1], nodesInt[2]);
-    graphInt.addEdge(nodesInt[1], nodesInt[3]);
-    graphInt.addEdge(nodesInt[2], nodesInt[3]);
+    graphInt.addEdge(nodesInt[0], nodesInt[1],1);
+    graphInt.addEdge(nodesInt[0], nodesInt[2],3);
+    graphInt.addEdge(nodesInt[1], nodesInt[2],4);
+    graphInt.addEdge(nodesInt[1], nodesInt[3],1);
+    graphInt.addEdge(nodesInt[2], nodesInt[3],2);
 
     std::cout << "Graph of integers:" << std::endl;
     graphInt.display();
@@ -409,6 +467,10 @@ void demoGraph() {
 
     std::vector<Edge<int>*> mst = graphInt.kruskalMST();
     graphInt.displayMST(mst);
+
+
+    std::vector<Edge<int>*> mstPrim = graphInt.primMST();
+    graphInt.displayMSTPrims(mstPrim);
 
     graphInt.removeNode(nodesInt[1]);
 
@@ -425,11 +487,11 @@ void demoGraph() {
     graphDouble.addNode(4.4);
 
     auto nodesDouble = graphDouble.getNodes();
-    graphDouble.addEdge(nodesDouble[0], nodesDouble[1]);
-    graphDouble.addEdge(nodesDouble[0], nodesDouble[2]);
-    graphDouble.addEdge(nodesDouble[1], nodesDouble[2]);
-    graphDouble.addEdge(nodesDouble[1], nodesDouble[3]);
-    graphDouble.addEdge(nodesDouble[2], nodesDouble[3]);
+    graphDouble.addEdge(nodesDouble[0], nodesDouble[1],2);
+    graphDouble.addEdge(nodesDouble[0], nodesDouble[2],1);
+    graphDouble.addEdge(nodesDouble[1], nodesDouble[2],3);
+    graphDouble.addEdge(nodesDouble[1], nodesDouble[3],1);
+    graphDouble.addEdge(nodesDouble[2], nodesDouble[3],2);
 
     std::cout << "\nGraph of doubles" << std::endl;
     graphDouble.display();
@@ -439,6 +501,9 @@ void demoGraph() {
 
     std::vector<Edge<double>*> mstDouble = graphDouble.kruskalMST();
     graphDouble.displayMST(mstDouble);
+
+    std::vector<Edge<double>*> mstPrimDouble = graphDouble.primMST();
+    graphDouble.displayMSTPrims(mstPrimDouble);
 
     graphDouble.removeNode(nodesDouble[1]);
 
@@ -455,11 +520,11 @@ void demoGraph() {
     graphString.addNode("D");
 
     auto nodesString = graphString.getNodes();
-    graphString.addEdge(nodesString[0], nodesString[1]);
-    graphString.addEdge(nodesString[0], nodesString[2]);
-    graphString.addEdge(nodesString[1], nodesString[2]);
-    graphString.addEdge(nodesString[1], nodesString[3]);
-    graphString.addEdge(nodesString[2], nodesString[3]);
+    graphString.addEdge(nodesString[0], nodesString[1],2);
+    graphString.addEdge(nodesString[0], nodesString[2],5);
+    graphString.addEdge(nodesString[1], nodesString[2],6);
+    graphString.addEdge(nodesString[1], nodesString[3],1);
+    graphString.addEdge(nodesString[2], nodesString[3],2);
 
     std::cout << "\nGraph of strings:" << std::endl;
     graphString.display();
@@ -469,6 +534,9 @@ void demoGraph() {
 
     std::vector<Edge<std::string>*> mstString = graphString.kruskalMST();
     graphString.displayMST(mstString);
+
+    std::vector<Edge<std::string>*> mstPrimString = graphString.primMST();
+    graphString.displayMSTPrims(mstPrimString);
 
     graphString.removeNode(nodesString[1]);
 
@@ -485,11 +553,11 @@ void demoGraph() {
     graphVector.addNode(std::vector<int>{7, 8});
 
     auto nodesVector = graphVector.getNodes();
-    graphVector.addEdge(nodesVector[0], nodesVector[1]);
-    graphVector.addEdge(nodesVector[0], nodesVector[2]);
-    graphVector.addEdge(nodesVector[1], nodesVector[2]);
-    graphVector.addEdge(nodesVector[1], nodesVector[3]);
-    graphVector.addEdge(nodesVector[2], nodesVector[3]);
+    graphVector.addEdge(nodesVector[0], nodesVector[1],1);
+    graphVector.addEdge(nodesVector[0], nodesVector[2],3);
+    graphVector.addEdge(nodesVector[1], nodesVector[2],2);
+    graphVector.addEdge(nodesVector[1], nodesVector[3],1);
+    graphVector.addEdge(nodesVector[2], nodesVector[3],4);
 
     std::cout << "\nGraph of vectors:" << std::endl;
     graphVector.display();
@@ -499,6 +567,9 @@ void demoGraph() {
 
     std::vector<Edge<std::vector<int>>*> mstVector = graphVector.kruskalMST();
     graphVector.displayMST(mstVector);
+
+    std::vector<Edge<std::vector<int>>*> mstPrimVector = graphVector.primMST();
+    graphVector.displayMSTPrims(mstPrimVector);
 
     graphVector.removeNode(nodesVector[1]);
 
@@ -516,11 +587,11 @@ void demoGraph() {
 
     auto nodesStringVector = graphStringVector.getNodes();
 
-    graphStringVector.addEdge(nodesStringVector[0], nodesStringVector[1]);
-    graphStringVector.addEdge(nodesStringVector[0], nodesStringVector[2]);
-    graphStringVector.addEdge(nodesStringVector[1], nodesStringVector[2]);
-    graphStringVector.addEdge(nodesStringVector[1], nodesStringVector[3]);
-    graphStringVector.addEdge(nodesStringVector[2], nodesStringVector[3]);
+    graphStringVector.addEdge(nodesStringVector[0], nodesStringVector[1],6);
+    graphStringVector.addEdge(nodesStringVector[0], nodesStringVector[2],0);
+    graphStringVector.addEdge(nodesStringVector[1], nodesStringVector[2],1);
+    graphStringVector.addEdge(nodesStringVector[1], nodesStringVector[3],1);
+    graphStringVector.addEdge(nodesStringVector[2], nodesStringVector[3],4);
 
     std::cout << "\nGraph of string vectors:" << std::endl;
     graphStringVector.display();
