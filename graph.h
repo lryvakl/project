@@ -6,16 +6,9 @@
 #ifndef PROJECT_GRAPH_H
 #define PROJECT_GRAPH_H
 
+#include "includes.h"
 
-
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <algorithm>
-#include <queue>
-#include "transport.h"
-#include <string>
-
+//4 класи
 
 namespace std {
     template <>
@@ -43,6 +36,7 @@ namespace std {
         }
     };
 }
+
 std::ostream& operator<<(std::ostream& os, const std::vector<std::string>& vec) {
     os << "{ ";
     for (const auto& str : vec) {
@@ -51,6 +45,15 @@ std::ostream& operator<<(std::ostream& os, const std::vector<std::string>& vec) 
     os << "}";
     return os;
 }
+std::ostream& operator<<(std::ostream& os, const std::vector<int>& vec) {
+    os << "{ ";
+    for (const auto& item : vec) {
+        os << item << " ";
+    }
+    os << "}";
+    return os;
+}
+
 
 template <typename T>
 class Node {
@@ -121,14 +124,7 @@ void printVector(const std::vector<int>& vec) {
     }
     std::cout << "}";
 }
-std::ostream& operator<<(std::ostream& os, const std::vector<int>& vec) {
-    os << "{ ";
-    for (const auto& item : vec) {
-        os << item << " ";
-    }
-    os << "}";
-    return os;
-}
+
 template <typename T>
 class Graph {
 private:
@@ -299,16 +295,23 @@ public:
 
 };
 
-
 void demoTransportGraph() {
     Graph<Transport*> transportGraph;
 
 
-    Environment* envLand = new Environment("Київ", "Львів");
-    envLand->addRoad("E40");
-    envLand->addObstacle("Traffic jam");
+    Environment* envCar = new Environment("Київ", "Одеса");
+    envCar->addRoad("М05");
+    envCar->addObstacle("Traffic jam");
 
-    Environment* envAir = new Environment("Київ", "Львів");
+    Environment* envBus = new Environment("Львів", "Київ");
+    envBus->addRoad("E05");
+    envBus->addObstacle("Construction of roads");
+
+    Environment* envTrain = new Environment("Одеса", "Львів");
+    envTrain->addRoad("124К");
+    envTrain->addObstacle("Delayed");
+
+    Environment* envAir = new Environment("Київ", "Варшава");
     envAir->addObstacle("Weather issues");
 
     Environment* envWater = new Environment("Київ", "Львів");
@@ -316,15 +319,16 @@ void demoTransportGraph() {
     envAir->addObstacle("Storm");
 
 
-    Transport* landTransport = new LandTransport(0, 0, 0, envLand);
-    Transport* car = new Car(1500, 6, 300, envLand);
-    Transport* bus = new Bus(8000, 6, 400, envLand);
-    Transport* train = new Train(20000, 8, 600, envLand);
-    Transport* airTransport = new AirTransport(0, 0, 0, envAir);
+    Transport* landTransport = new LandTransport(0, 0, 0, nullptr);
+    Transport* car = new Car(1500, 6, 300, envCar);
+    Transport* bus = new Bus(8000, 6, 400, envBus);
+    Transport* train = new Train(20000, 8, 600, envTrain);
+    Transport* airTransport = new AirTransport(0, 0, 0, nullptr);
     Transport* airplane = new Airplane(50000, 2, 1500, envAir);
-    Transport* waterTransport = new WaterTransport(0, 0, 0, envWater);
+    Transport* waterTransport = new WaterTransport(0, 0, 0, nullptr);
     Transport* ship = new Ship(25000, 12, 1000, envWater);
 
+    std::cout<<"\nTransport Graph: "<<std::endl;
 
     transportGraph.addNode(landTransport);
     transportGraph.addNode(car);
@@ -366,7 +370,9 @@ void demoTransportGraph() {
     delete train;
     delete airplane;
     delete ship;
-    delete envLand;
+    delete envCar;
+    delete envTrain;
+    delete envBus;
     delete envAir;
     delete envWater;
 
@@ -374,7 +380,6 @@ void demoTransportGraph() {
         delete edge;
     }
 }
-
 
 void demoGraph() {
 
@@ -554,7 +559,5 @@ void demoGraph() {
         delete node;
     }
 }
-
-
 
 #endif //PROJECT_GRAPH_H

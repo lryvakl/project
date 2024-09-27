@@ -1,17 +1,15 @@
 #ifndef PROJECT_TRANSPORT_H
 #define PROJECT_TRANSPORT_H
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <sstream>
+#include "includes.h"
+//10класів
 
 class Environment {
 private:
     std::string startPoint;
     std::string endPoint;
-    std::vector<std::string> roads; // Наприклад, перелік доріг
-    std::vector<std::string> obstacles; // Наприклад, список перешкод
+    std::vector<std::string> roads;
+    std::vector<std::string> obstacles;
 
 public:
     Environment(const std::string& start, const std::string& end)

@@ -5,11 +5,9 @@
 #ifndef PROJECT_TREE_H
 #define PROJECT_TREE_H
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <unordered_map>
-#include "transport.h"
+#include "includes.h"
+
+//2 класи
 
 template <typename T>
 void deleteData(T data) {
@@ -17,8 +15,6 @@ void deleteData(T data) {
         delete data;
     }
 }
-
-
 
 template <typename T>
 class TreeNode {
@@ -244,7 +240,5 @@ void demoTransportTree() {
     transportTree.display();
 
 }
-
-
 
 #endif //PROJECT_TREE_H

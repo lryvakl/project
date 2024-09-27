@@ -1,12 +1,6 @@
-
-#include "graph.h"
-#include "tree.h"
-#include "transport.h"
-
+#include "includes.h"
 
 int main() {
-
-
     demoGraph();
     demoTransportGraph();
     demoTree();
