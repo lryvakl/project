@@ -52,14 +52,6 @@ public:
 
     virtual std::string toString() const = 0;
 
-    virtual double getDistance() const {
-        return distance;
-    }
-
-    void setEnvironment(Environment* newEnv) {
-        env = newEnv;
-    }
-
     std::string getEnvironmentInfo() const {
         return env ? env->toString() : "No environment set.";
     }

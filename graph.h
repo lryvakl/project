@@ -61,7 +61,6 @@ public:
     T data;
     Node(T data) : data(data) {}
 
-    // Методи для роботи з вершинами
     void setData(T newData) { data = newData; }
     T getData() const { return data; }
 };
@@ -128,22 +127,22 @@ void printVector(const std::vector<int>& vec) {
 template <typename T>
 class Graph {
 private:
-    std::vector<Node<T>*> nodes;
-    std::vector<Edge<T>*> edges;
+    std::vector<Node<T> *> nodes;
+    std::vector<Edge<T> *> edges;
 
 public:
     void addNode(T data) {
-        Node<T>* newNode = new Node<T>(data);
+        Node<T> *newNode = new Node<T>(data);
         nodes.push_back(newNode);
     }
 
-    void addEdge(Node<T>* from, Node<T>* to, double weight = 1.0) {
-        Edge<T>* newEdge = new Edge<T>(from, to, weight);
+    void addEdge(Node<T> *from, Node<T> *to, double weight = 1.0) {
+        Edge<T> *newEdge = new Edge<T>(from, to, weight);
         edges.push_back(newEdge);
     }
 
-    void removeNode(Node<T>* node) {
-        for (auto it = edges.begin(); it != edges.end(); ) {
+    void removeNode(Node<T> *node) {
+        for (auto it = edges.begin(); it != edges.end();) {
             if ((*it)->from == node || (*it)->to == node) {
                 it = edges.erase(it);
             } else {
@@ -152,7 +151,7 @@ public:
         }
 
 
-        for (auto it = nodes.begin(); it != nodes.end(); ) {
+        for (auto it = nodes.begin(); it != nodes.end();) {
             if (*it == node) {
                 delete *it;
                 it = nodes.erase(it);
@@ -162,9 +161,9 @@ public:
         }
     }
 
-    void removeEdge(Edge<T>* edge) {
+    void removeEdge(Edge<T> *edge) {
 
-        for (auto it = edges.begin(); it != edges.end(); ) {
+        for (auto it = edges.begin(); it != edges.end();) {
             if (*it == edge) {
                 delete *it;
                 it = edges.erase(it);
@@ -176,22 +175,22 @@ public:
     }
 
 
-    std::vector<Edge<T>*> findSpanningTree() {
-        std::vector<Edge<T>*> spanningTree;
-        std::unordered_map<Node<T>*, bool> visited;
+    std::vector<Edge<T> *> findSpanningTree() {
+        std::vector<Edge<T> *> spanningTree;
+        std::unordered_map<Node<T> *, bool> visited;
 
         if (nodes.empty()) return spanningTree;
 
         // Використовуємо BFS для побудови кістякового дерева
-        std::queue<Node<T>*> queue;
+        std::queue<Node<T> *> queue;
         queue.push(nodes[0]);
         visited[nodes[0]] = true;
 
         while (!queue.empty()) {
-            Node<T>* currentNode = queue.front();
+            Node<T> *currentNode = queue.front();
             queue.pop();
 
-            for (auto edge : edges) {
+            for (auto edge: edges) {
                 if (edge->from == currentNode && !visited[edge->to]) {
                     visited[edge->to] = true;
                     spanningTree.push_back(edge);
@@ -207,22 +206,22 @@ public:
         return spanningTree;
     }
 
-    std::vector<Edge<T>*> kruskalMST() { //minimal spanning tree
-        std::vector<Edge<T>*> mst;
+    std::vector<Edge<T> *> kruskalMST() { //minimal spanning tree
+        std::vector<Edge<T> *> mst;
         UnionFind<T> uf;
 
         // Створюємо множини для кожної вершини
-        for (auto node : nodes) {
+        for (auto node: nodes) {
             uf.makeSet(node->getData());
         }
 
         // Сортуємо ребра за вагою
-        std::sort(edges.begin(), edges.end(), [](Edge<T>* a, Edge<T>* b) {
+        std::sort(edges.begin(), edges.end(), [](Edge<T> *a, Edge<T> *b) {
             return a->getWeight() < b->getWeight();
         });
 
         // Проходимо через всі ребра та будуємо MST
-        for (auto edge : edges) {
+        for (auto edge: edges) {
             T fromRoot = uf.find(edge->from->getData());
             T toRoot = uf.find(edge->to->getData());
 
@@ -238,12 +237,12 @@ public:
 
 
     void display() const {
-        for (const auto& edge : edges) {
+        for (const auto &edge: edges) {
             std::cout << edge->from->getData() << " --(" << edge->getWeight() << ")--> ";
 
             // Перевірка типу даних
             if constexpr (std::is_same<T, std::vector<int>>::value) {
-                printVector(static_cast<const std::vector<int>&>(edge->to->getData())); // Виводимо вектор
+                printVector(static_cast<const std::vector<int> &>(edge->to->getData())); // Виводимо вектор
             } else {
                 std::cout << edge->to->getData();
             }
@@ -252,43 +251,48 @@ public:
     }
 
 
-    void displaySpanningTree(const std::vector<Edge<T>*>& spanningTree) const {
+    void displaySpanningTree(const std::vector<Edge<T> *> &spanningTree) const {
         std::cout << "Spanning Tree:" << std::endl;
-        for (auto edge : spanningTree) {
+        for (auto edge: spanningTree) {
             std::cout << edge->from->getData() << " -- " << edge->to->getData() << std::endl;
         }
     }
-    void displaySTtrans(const std::vector<Edge<T>*>& spanningTree) const {
+
+    void displaySTtrans(const std::vector<Edge<T> *> &spanningTree) const {
         std::cout << " Spanning Tree:" << std::endl;
-        for (auto edge : spanningTree) {
-            std::cout << edge->from->getData()->toString() << " --(" << edge->getWeight() << ")--> " << edge->to->getData()->toString() << std::endl;
+        for (auto edge: spanningTree) {
+            std::cout << edge->from->getData()->toString() << " --(" << edge->getWeight() << ")--> "
+                      << edge->to->getData()->toString() << std::endl;
         }
     }
 
-    void displayMST(const std::vector<Edge<T>*>& mst) const {
+    void displayMST(const std::vector<Edge<T> *> &mst) const {
         std::cout << "Minimum Spanning Tree:" << std::endl;
-        for (auto edge : mst) {
-            std::cout << edge->from->getData() << " --(" << edge->getWeight() << ")--> " << edge->to->getData() << std::endl;
+        for (auto edge: mst) {
+            std::cout << edge->from->getData() << " --(" << edge->getWeight() << ")--> " << edge->to->getData()
+                      << std::endl;
         }
     }
 
-    std::vector<Node<T>*> getNodes() const {
+    std::vector<Node<T> *> getNodes() const {
         return nodes;
     }
 
-    std::vector<Edge<T>*> getEdges() const {
+    std::vector<Edge<T> *> getEdges() const {
         return edges;
     }
 
     void displayTransport() const {
-        for (const auto& node : nodes) {
-            std::cout << node->getData()->toString()<< std::endl;
+        for (const auto &node: nodes) {
+            std::cout << node->getData()->toString() << std::endl;
         }
     }
-    void displayMSTtrans(const std::vector<Edge<T>*>& mst) const {
+
+    void displayMSTtrans(const std::vector<Edge<T> *> &mst) const {
         std::cout << "Minimum Spanning Tree:" << std::endl;
-        for (auto edge : mst) {
-            std::cout << edge->from->getData()->toString() << " --(" << edge->getWeight() << ")--> " << edge->to->getData()->toString() << std::endl;
+        for (auto edge: mst) {
+            std::cout << edge->from->getData()->toString() << " --(" << edge->getWeight() << ")--> "
+                      << edge->to->getData()->toString() << std::endl;
         }
     }
 
@@ -345,7 +349,6 @@ void demoTransportGraph() {
     transportGraph.addEdge(transportGraph.getNodes()[0], transportGraph.getNodes()[3]);
     transportGraph.addEdge(transportGraph.getNodes()[4], transportGraph.getNodes()[5]);
     transportGraph.addEdge(transportGraph.getNodes()[6], transportGraph.getNodes()[7]);
-
 
     for (const auto& node : transportGraph.getNodes()) {
 
