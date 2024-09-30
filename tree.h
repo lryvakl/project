@@ -108,7 +108,6 @@ public:
             return removeNode(root, nullptr);
         }
 
-        // Знаходимо батька вузла для коректного видалення
         TreeNode<T>* parent = findParent(root, node);
         return removeNode(node, parent);
     }
@@ -129,76 +128,82 @@ public:
     }
 };
 
-void demoTree() {
+std::uniform_int_distribution<> intDist(1, 100);
+std::uniform_real_distribution<> doubleDist(1.0, 100.0);
+
+void demoIntTree(){
     Tree<int> intTree;
-    intTree.addRoot(1);
-    intTree.addChild(intTree.getRoot(), 2);
-    intTree.addChild(intTree.getRoot(), 3);
+    intTree.addRoot(intDist(gen));
+    intTree.addChild(intTree.getRoot(), intDist(gen));
+    intTree.addChild(intTree.getRoot(), intDist(gen));
     std::cout << "Integer Tree:" << std::endl;
     intTree.display();
 
     intTree.remove(intTree.getRoot()->children[0]);
-    std::cout << "\nAfter removing node with data 2:" << std::endl;
+    std::cout << "\nAfter removing first integer child:" << std::endl;
     intTree.display();
-
+}
+void demoDoubleTree(){
     Tree<double> doubleTree;
-    doubleTree.addRoot(1.1);
-    doubleTree.addChild(doubleTree.getRoot(), 2.2);
-    doubleTree.addChild(doubleTree.getRoot(), 3.3);
+    doubleTree.addRoot(doubleDist(gen));
+    doubleTree.addChild(doubleTree.getRoot(), doubleDist(gen));
+    doubleTree.addChild(doubleTree.getRoot(), doubleDist(gen));
     std::cout << "\nDouble Tree:" << std::endl;
     doubleTree.display();
 
     doubleTree.remove(doubleTree.getRoot()->children[1]);
-    std::cout << "\nAfter removing node with data 3.3:" << std::endl;
+    std::cout << "\nAfter removing double second child:" << std::endl;
     doubleTree.display();
 
+}
+void demoStringTree(){
     Tree<std::string> stringTree;
-    stringTree.addRoot("Root");
-    stringTree.addChild(stringTree.getRoot(), "Child 1");
-    stringTree.addChild(stringTree.getRoot(), "Child 2");
+    stringTree.addRoot(generateRandomString(5));  // Рядок довжиною 5
+    stringTree.addChild(stringTree.getRoot(), generateRandomString(5));
+    stringTree.addChild(stringTree.getRoot(), generateRandomString(5));
     std::cout << "\nString Tree:" << std::endl;
     stringTree.display();
 
     stringTree.remove(stringTree.getRoot()->children[0]);
-    std::cout << "\nAfter removing 'Child 1':" << std::endl;
+    std::cout << "\nAfter removing first string child:" << std::endl;
     stringTree.display();
-
+}
+void demoVectorIntTree(){
     Tree<std::vector<int>> vectorTree;
-    std::vector<int> rootData = {1, 2, 3};
-    vectorTree.addRoot(rootData);
-    std::vector<int> childData1 = {4, 5};
-    std::vector<int> childData2 = {6, 7};
-    vectorTree.addChild(vectorTree.getRoot(), childData1);
-    vectorTree.addChild(vectorTree.getRoot(), childData2);
+    vectorTree.addRoot(generateRandomIntVector(3, 1, 10));
+    vectorTree.addChild(vectorTree.getRoot(), generateRandomIntVector(2, 1, 10));
+    vectorTree.addChild(vectorTree.getRoot(), generateRandomIntVector(2, 1, 10));
 
-    std::cout << "\nVector Tree:" << std::endl;
+    std::cout << "\nVector<int> Tree:" << std::endl;
     vectorTree.display();
 
     vectorTree.remove(vectorTree.getRoot()->children[0]);
-    std::cout << "\nAfter removing first child vector node:" << std::endl;
+    std::cout << "\nAfter removing first vector<int> child:" << std::endl;
     vectorTree.display();
+}
+void demoVectorStringTree(){
 
     Tree<std::vector<std::string>> vectorStringTree;
 
-    std::vector<std::string> rootDataString = {"one", "two", "three"};
-    vectorStringTree.addRoot(rootDataString);
+    vectorStringTree.addRoot(generateRandomStringVector(3, 5));
+    vectorStringTree.addChild(vectorStringTree.getRoot(), generateRandomStringVector(2, 5));
+    vectorStringTree.addChild(vectorStringTree.getRoot(), generateRandomStringVector(2, 5));
 
-    std::vector<std::string> childData3 = {"four", "five"};
-    std::vector<std::string> childData4 = {"six", "seven"};
-
-    vectorStringTree.addChild(vectorStringTree.getRoot(), childData3);
-    vectorStringTree.addChild(vectorStringTree.getRoot(), childData4);
-
-    std::cout << "\nVector Tree:" << std::endl;
+    std::cout << "\nVector<std::string> Tree:" << std::endl;
     vectorStringTree.display();
-
 
     vectorStringTree.remove(vectorStringTree.getRoot()->children[0]);
-    std::cout << "\nAfter removing first child vector node:" << std::endl;
+    std::cout << "\nAfter removing first vector<std::string> child:" << std::endl;
     vectorStringTree.display();
+}
 
+void demoTree() {
 
-
+    demoIntTree();
+    demoDoubleTree();
+    demoStringTree();
+    demoVectorIntTree();
+    demoVectorStringTree();
 }
 
 void demoTransportTree() {

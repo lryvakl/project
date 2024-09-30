@@ -53,7 +53,36 @@ std::ostream& operator<<(std::ostream& os, const std::vector<int>& vec) {
     os << "}";
     return os;
 }
+std::string generateRandomString(int length) {
+    std::string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, characters.size() - 1);
 
+    std::string randomString;
+    for (int i = 0; i < length; ++i) {
+        randomString += characters[dis(gen)];
+    }
+    return randomString;
+}
+std::vector<int> generateRandomIntVector(int size, int minValue, int maxValue) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(minValue, maxValue);
+
+    std::vector<int> randomVector(size);
+    for (int& elem : randomVector) {
+        elem = dis(gen);
+    }
+    return randomVector;
+}
+std::vector<std::string> generateRandomStringVector(int vectorSize, int stringLength) {
+    std::vector<std::string> randomStringVector(vectorSize);
+    for (auto& str : randomStringVector) {
+        str = generateRandomString(stringLength);  // Генеруємо випадковий рядок
+    }
+    return randomStringVector;
+}
 
 template <typename T>
 class Node {
@@ -75,7 +104,6 @@ public:
     Edge(Node<T>* from, Node<T>* to, double weight = 1.0)
             : from(from), to(to), weight(weight) {}
 
-    // Методи для роботи з ребрами
     double getWeight() const { return weight; }
 };
 
@@ -93,7 +121,7 @@ public:
 
     T find(T element) {
         if (parent[element] != element) {
-            parent[element] = find(parent[element]); // Шляхова компресія
+            parent[element] = find(parent[element]);
         }
         return parent[element];
     }
@@ -103,7 +131,7 @@ public:
         T rootB = find(b);
 
         if (rootA != rootB) {
-            // Об'єднання за рангом
+
             if (rank[rootA] < rank[rootB]) {
                 parent[rootA] = rootB;
             } else if (rank[rootA] > rank[rootB]) {
@@ -181,7 +209,7 @@ public:
 
         if (nodes.empty()) return spanningTree;
 
-        // Використовуємо BFS для побудови кістякового дерева
+        // Використовуємо BFS(в ширину) для побудови кістякового дерева
         std::queue<Node<T> *> queue;
         queue.push(nodes[0]);
         visited[nodes[0]] = true;
@@ -244,7 +272,6 @@ public:
 
         if (nodes.empty()) return mst;
 
-        // Start with the first node
         visited.insert(nodes[0]);
         for (auto edge : edges) {
             if (edge->from == nodes[0] || edge->to == nodes[0]) {
@@ -273,14 +300,19 @@ public:
         return mst;
     }
 
+    std::vector<Node<T> *> getNodes() const {
+        return nodes;
+    }
 
+    std::vector<Edge<T> *> getEdges() const {
+        return edges;
+    }
     void display() const {
         for (const auto &edge: edges) {
             std::cout << edge->from->getData() << " --(" << edge->getWeight() << ")--> ";
 
-            // Перевірка типу даних
             if constexpr (std::is_same<T, std::vector<int>>::value) {
-                printVector(static_cast<const std::vector<int> &>(edge->to->getData())); // Виводимо вектор
+                printVector(static_cast<const std::vector<int> &>(edge->to->getData()));
             } else {
                 std::cout << edge->to->getData();
             }
@@ -288,6 +320,11 @@ public:
         }
     }
 
+    void displayTransport() const {
+        for (const auto &node: nodes) {
+            std::cout << node->getData()->toString() << std::endl;
+        }
+    }
 
     void displaySpanningTree(const std::vector<Edge<T> *> &spanningTree) const {
         std::cout << "Spanning Tree:" << std::endl;
@@ -312,20 +349,6 @@ public:
         }
     }
 
-    std::vector<Node<T> *> getNodes() const {
-        return nodes;
-    }
-
-    std::vector<Edge<T> *> getEdges() const {
-        return edges;
-    }
-
-    void displayTransport() const {
-        for (const auto &node: nodes) {
-            std::cout << node->getData()->toString() << std::endl;
-        }
-    }
-
     void displayMSTtrans(const std::vector<Edge<T> *> &mst) const {
         std::cout << "Minimum Spanning Tree:" << std::endl;
         for (auto edge: mst) {
@@ -342,7 +365,6 @@ public:
         }
     }
 
-
     void displayMSTPrims(const std::vector<Edge<T>*> &mst) const {
         std::cout << "Minimum Spanning Tree (Prim's Algorithm):" << std::endl;
         for (auto edge : mst) {
@@ -357,7 +379,6 @@ public:
 
 void demoTransportGraph() {
     Graph<Transport*> transportGraph;
-
 
     Environment* envCar = new Environment("Київ", "Одеса");
     envCar->addRoad("М05");
@@ -422,7 +443,8 @@ void demoTransportGraph() {
     std::vector<Edge<Transport*>*> mstTransportPrims = transportGraph.primMST();
     transportGraph.displayMSTPrimsTrans(mstTransportPrims);
 
-    transportGraph.removeNode(transportGraph.getNodes()[5]); // Наприклад, літак
+    transportGraph.removeNode(transportGraph.getNodes()[5]);
+    transportGraph.removeNode(transportGraph.getNodes()[4]);
     std::cout << "\nAfter removing the Airplane:" << std::endl;
     transportGraph.displayTransport();
 
@@ -442,22 +464,27 @@ void demoTransportGraph() {
     }
 }
 
-void demoGraph() {
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_int_distribution<> dis(1, 100);
+std::random_device rdS;
+std::mt19937 genS(rdS());
+std::uniform_int_distribution<> weightDist(1, 10);
 
-    // Граф для int
+void demoIntGraph(){
     Graph<int> graphInt;
 
-    graphInt.addNode(1);
-    graphInt.addNode(2);
-    graphInt.addNode(3);
-    graphInt.addNode(4);
+    for (int i = 0; i < 4; ++i) {
+        graphInt.addNode(dis(gen));
+    }
 
     auto nodesInt = graphInt.getNodes();
-    graphInt.addEdge(nodesInt[0], nodesInt[1],1);
-    graphInt.addEdge(nodesInt[0], nodesInt[2],3);
-    graphInt.addEdge(nodesInt[1], nodesInt[2],4);
-    graphInt.addEdge(nodesInt[1], nodesInt[3],1);
-    graphInt.addEdge(nodesInt[2], nodesInt[3],2);
+
+    graphInt.addEdge(nodesInt[0], nodesInt[1], dis(gen));
+    graphInt.addEdge(nodesInt[0], nodesInt[2], dis(gen));
+    graphInt.addEdge(nodesInt[1], nodesInt[2], dis(gen));
+    graphInt.addEdge(nodesInt[1], nodesInt[3], dis(gen));
+    graphInt.addEdge(nodesInt[2], nodesInt[3], dis(gen));
 
     std::cout << "Graph of integers:" << std::endl;
     graphInt.display();
@@ -468,7 +495,6 @@ void demoGraph() {
     std::vector<Edge<int>*> mst = graphInt.kruskalMST();
     graphInt.displayMST(mst);
 
-
     std::vector<Edge<int>*> mstPrim = graphInt.primMST();
     graphInt.displayMSTPrims(mstPrim);
 
@@ -476,24 +502,35 @@ void demoGraph() {
 
     std::cout << "Graph of integers after removing node 2:" << std::endl;
     graphInt.display();
+    for (auto edge : graphInt.getEdges()) {
+        delete edge;
+    }
+    for (auto node : graphInt.getNodes()) {
+        delete node;
+    }
 
-    // Граф для double
+}
+void demoDoubleGraph(){
+
+    std::random_device rdouble;
+    std::mt19937 genD(rdouble());
+    std::uniform_real_distribution<> disD(1.0, 100.0);
 
     Graph<double> graphDouble;
 
-    graphDouble.addNode(1.1);
-    graphDouble.addNode(2.2);
-    graphDouble.addNode(3.3);
-    graphDouble.addNode(4.4);
+    for (int i = 0; i < 4; ++i) {
+        graphDouble.addNode(disD(genD));
+    }
 
     auto nodesDouble = graphDouble.getNodes();
-    graphDouble.addEdge(nodesDouble[0], nodesDouble[1],2);
-    graphDouble.addEdge(nodesDouble[0], nodesDouble[2],1);
-    graphDouble.addEdge(nodesDouble[1], nodesDouble[2],3);
-    graphDouble.addEdge(nodesDouble[1], nodesDouble[3],1);
-    graphDouble.addEdge(nodesDouble[2], nodesDouble[3],2);
 
-    std::cout << "\nGraph of doubles" << std::endl;
+    graphDouble.addEdge(nodesDouble[0], nodesDouble[1], disD(genD));
+    graphDouble.addEdge(nodesDouble[0], nodesDouble[2], disD(genD));
+    graphDouble.addEdge(nodesDouble[1], nodesDouble[2], disD(genD));
+    graphDouble.addEdge(nodesDouble[1], nodesDouble[3], disD(genD));
+    graphDouble.addEdge(nodesDouble[2], nodesDouble[3], disD(genD));
+
+    std::cout << "\nGraph of doubles:" << std::endl;
     graphDouble.display();
 
     std::vector<Edge<double>*> spanningTreeDouble = graphDouble.findSpanningTree();
@@ -507,24 +544,29 @@ void demoGraph() {
 
     graphDouble.removeNode(nodesDouble[1]);
 
-    std::cout << "Graph of doubles after removing node 2.2:" << std::endl;
+    std::cout << "Graph of doubles after removing node:" << std::endl;
     graphDouble.display();
-
-    // Граф для рядків
-
+    for (auto edge : graphDouble.getEdges()) {
+        delete edge;
+    }
+    for (auto node : graphDouble.getNodes()) {
+        delete node;
+    }
+}
+void demoStringGraph(){
     Graph<std::string> graphString;
 
-    graphString.addNode("A");
-    graphString.addNode("B");
-    graphString.addNode("C");
-    graphString.addNode("D");
+    for (int i = 0; i < 4; ++i) {
+        graphString.addNode(generateRandomString(5));
+    }
 
     auto nodesString = graphString.getNodes();
-    graphString.addEdge(nodesString[0], nodesString[1],2);
-    graphString.addEdge(nodesString[0], nodesString[2],5);
-    graphString.addEdge(nodesString[1], nodesString[2],6);
-    graphString.addEdge(nodesString[1], nodesString[3],1);
-    graphString.addEdge(nodesString[2], nodesString[3],2);
+
+    graphString.addEdge(nodesString[0], nodesString[1], weightDist(gen));
+    graphString.addEdge(nodesString[0], nodesString[2], weightDist(gen));
+    graphString.addEdge(nodesString[1], nodesString[2], weightDist(gen));
+    graphString.addEdge(nodesString[1], nodesString[3], weightDist(gen));
+    graphString.addEdge(nodesString[2], nodesString[3], weightDist(gen));
 
     std::cout << "\nGraph of strings:" << std::endl;
     graphString.display();
@@ -540,24 +582,29 @@ void demoGraph() {
 
     graphString.removeNode(nodesString[1]);
 
-    std::cout << "Graph of strings after removing node B:" << std::endl;
+    std::cout << "Graph of strings after removing node:" << std::endl;
     graphString.display();
-
-    // Граф для векторів<int>
-
+    for (auto edge : graphString.getEdges()) {
+        delete edge;
+    }
+    for (auto node : graphString.getNodes()) {
+        delete node;
+    }
+}
+void demoVectorIntGraph(){
     Graph<std::vector<int>> graphVector;
 
-    graphVector.addNode(std::vector<int>{1, 2});
-    graphVector.addNode(std::vector<int>{3, 4});
-    graphVector.addNode(std::vector<int>{5, 6});
-    graphVector.addNode(std::vector<int>{7, 8});
+    for (int i = 0; i < 4; ++i) {
+        graphVector.addNode(generateRandomIntVector(2, 1, 10));
+    }
 
     auto nodesVector = graphVector.getNodes();
-    graphVector.addEdge(nodesVector[0], nodesVector[1],1);
-    graphVector.addEdge(nodesVector[0], nodesVector[2],3);
-    graphVector.addEdge(nodesVector[1], nodesVector[2],2);
-    graphVector.addEdge(nodesVector[1], nodesVector[3],1);
-    graphVector.addEdge(nodesVector[2], nodesVector[3],4);
+
+    graphVector.addEdge(nodesVector[0], nodesVector[1], weightDist(gen));
+    graphVector.addEdge(nodesVector[0], nodesVector[2], weightDist(gen));
+    graphVector.addEdge(nodesVector[1], nodesVector[2], weightDist(gen));
+    graphVector.addEdge(nodesVector[1], nodesVector[3], weightDist(gen));
+    graphVector.addEdge(nodesVector[2], nodesVector[3], weightDist(gen));
 
     std::cout << "\nGraph of vectors:" << std::endl;
     graphVector.display();
@@ -573,25 +620,31 @@ void demoGraph() {
 
     graphVector.removeNode(nodesVector[1]);
 
-    std::cout << "Graph of vectors after removing vector {3, 4}:" << std::endl;
+    std::cout << "Graph of vectors after removing vector:" << std::endl;
     graphVector.display();
 
-// Граф для vector<string>
-
+    for (auto edge : graphVector.getEdges()) {
+        delete edge;
+    }
+    for (auto node : graphVector.getNodes()) {
+        delete node;
+    }
+}
+void demoVectorStringGraph(){
     Graph<std::vector<std::string>> graphStringVector;
 
-    graphStringVector.addNode(std::vector<std::string>{"Hello", "World"});
-    graphStringVector.addNode(std::vector<std::string>{"C++", "Programming"});
-    graphStringVector.addNode(std::vector<std::string>{"Graph", "Data"});
-    graphStringVector.addNode(std::vector<std::string>{"Algorithm", "Tree"});
+
+    for (int i = 0; i < 4; ++i) {
+        graphStringVector.addNode(generateRandomStringVector(2, 5));
+    }
 
     auto nodesStringVector = graphStringVector.getNodes();
 
-    graphStringVector.addEdge(nodesStringVector[0], nodesStringVector[1],6);
-    graphStringVector.addEdge(nodesStringVector[0], nodesStringVector[2],0);
-    graphStringVector.addEdge(nodesStringVector[1], nodesStringVector[2],1);
-    graphStringVector.addEdge(nodesStringVector[1], nodesStringVector[3],1);
-    graphStringVector.addEdge(nodesStringVector[2], nodesStringVector[3],4);
+    graphStringVector.addEdge(nodesStringVector[0], nodesStringVector[1], weightDist(gen));
+    graphStringVector.addEdge(nodesStringVector[0], nodesStringVector[2], weightDist(gen));
+    graphStringVector.addEdge(nodesStringVector[1], nodesStringVector[2], weightDist(gen));
+    graphStringVector.addEdge(nodesStringVector[1], nodesStringVector[3], weightDist(gen));
+    graphStringVector.addEdge(nodesStringVector[2], nodesStringVector[3], weightDist(gen));
 
     std::cout << "\nGraph of string vectors:" << std::endl;
     graphStringVector.display();
@@ -604,34 +657,25 @@ void demoGraph() {
 
     graphStringVector.removeNode(nodesStringVector[1]);
 
-    std::cout << "Graph of string vectors after removing vector {C++, Programming}:" << std::endl;
+    std::cout << "Graph of string vectors after removing vector:" << std::endl;
     graphStringVector.display();
 
+    for (auto edge : graphStringVector.getEdges()) {
+        delete edge;
+    }
+    for (auto node : graphStringVector.getNodes()) {
+        delete node;
+    }
+}
 
-    for (auto edge : graphInt.getEdges()) {
-        delete edge;
-    }
-    for (auto node : graphInt.getNodes()) {
-        delete node;
-    }
-    for (auto edge : graphDouble.getEdges()) {
-        delete edge;
-    }
-    for (auto node : graphDouble.getNodes()) {
-        delete node;
-    }
-    for (auto edge : graphString.getEdges()) {
-        delete edge;
-    }
-    for (auto node : graphString.getNodes()) {
-        delete node;
-    }
-    for (auto edge : graphVector.getEdges()) {
-        delete edge;
-    }
-    for (auto node : graphVector.getNodes()) {
-        delete node;
-    }
+void demoGraph() {
+
+    demoIntGraph();
+    demoDoubleGraph();
+    demoStringGraph();
+    demoVectorIntGraph();
+    demoVectorStringGraph();
+
 }
 
 #endif //PROJECT_GRAPH_H

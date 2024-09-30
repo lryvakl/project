@@ -44,7 +44,7 @@ protected:
     double price;
     double duration;
     double distance;
-    Environment* env; // Нове поле для середовища
+    Environment* env;
 
 public:
     Transport(double price, double duration, double distance, Environment* env)
